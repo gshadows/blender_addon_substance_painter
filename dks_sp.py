@@ -51,9 +51,13 @@ def dks_sp_get_file_name():
 
     return bpy.path.basename(bpy.context.blend_data.filepath).replace('.blend','')
 
-def dks_sp_get_texture_file(texture_path,mesh_name,mat_name,texture_name,texture_ext):
+def dks_sp_get_texture_file(texture_path,collection_name,mesh_name,mat_name,texture_name,texture_ext):
 
-    if path.exists(texture_path+mesh_name+'_'+mat_name+'_'+texture_name+'.'+texture_ext):
+    if path.exists(texture_path+collection_name+'_'+mat_name+'_'+texture_name+'.'+texture_ext):
+        if bpy.context.preferences.addons[__package__].preferences.option_relative:
+            texture_path=bpy.path.relpath(texture_path)+sep
+        return texture_path+collection_name+'_'+mat_name+'_'+texture_name+'.'+texture_ext
+    elif path.exists(texture_path+mesh_name+'_'+mat_name+'_'+texture_name+'.'+texture_ext):
         if bpy.context.preferences.addons[__package__].preferences.option_relative:
             texture_path=bpy.path.relpath(texture_path)+sep
         return texture_path+mesh_name+'_'+mat_name+'_'+texture_name+'.'+texture_ext
@@ -88,6 +92,8 @@ class dks_sp_pbr_nodes(bpy.types.Operator):
 
     def execute(self, context):
 
+        _collection_name = ''
+
         if self.import_setting == 'scene':
 
             _objects = bpy.context.scene.objects
@@ -95,6 +101,7 @@ class dks_sp_pbr_nodes(bpy.types.Operator):
         elif self.import_setting == 'collection':
 
             _objects = bpy.data.collections[dks_sp_get_collection_name()].all_objects
+            _collection_name = dks_sp_get_collection_name()
 
         elif bpy.context.active_object:
 
@@ -108,7 +115,7 @@ class dks_sp_pbr_nodes(bpy.types.Operator):
 
             if _obj.type=='MESH':
 
-                _obj_name = _obj.name
+                _obj_name = _obj.name + _collection_name
 
                 _materials = _obj.data.materials
 
@@ -116,27 +123,27 @@ class dks_sp_pbr_nodes(bpy.types.Operator):
 
                     _material_name = _material.name
 
-                    _file_Base_Color = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Base_Color',_texture_ext)
+                    _file_Base_Color = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Base_Color',_texture_ext)
 
                     if _file_Base_Color=="":
-                        _file_Base_Color = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'BaseColor',_texture_ext)
+                        _file_Base_Color = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'BaseColor',_texture_ext)
 
-                    _file_Diffuse = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Diffuse',_texture_ext)
-                    _file_Ambient_occlusion = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Ambient_occlusion',_texture_ext)
-                    _file_Metallic = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Metallic',_texture_ext)
-                    _file_Specular = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Specular',_texture_ext)
-                    _file_Glossiness = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Glossiness',_texture_ext)
-                    _file_Roughness = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Roughness',_texture_ext)
-                    _file_ORM = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'OcclusionRoughnessMetallic',_texture_ext)
-                    _file_Opacity = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Opacity',_texture_ext)
+                    _file_Diffuse = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Diffuse',_texture_ext)
+                    _file_Ambient_occlusion = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Ambient_occlusion',_texture_ext)
+                    _file_Metallic = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Metallic',_texture_ext)
+                    _file_Specular = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Specular',_texture_ext)
+                    _file_Glossiness = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Glossiness',_texture_ext)
+                    _file_Roughness = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Roughness',_texture_ext)
+                    _file_ORM = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'OcclusionRoughnessMetallic',_texture_ext)
+                    _file_Opacity = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Opacity',_texture_ext)
 
-                    _file_Height = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Height',_texture_ext)
-                    _file_Normal = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Normal_OpenGL',_texture_ext)
+                    _file_Height = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Height',_texture_ext)
+                    _file_Normal = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Normal_OpenGL',_texture_ext)
 
                     if _file_Normal=="":
-                        _file_Normal = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Normal',_texture_ext)
+                        _file_Normal = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Normal',_texture_ext)
 
-                    _file_Emissive = dks_sp_get_texture_file(_textures_path,_obj_name,_material_name,'Emissive',_texture_ext)
+                    _file_Emissive = dks_sp_get_texture_file(_textures_path,_collection_name,_obj_name,_material_name,'Emissive',_texture_ext)
 
                     if _file_Base_Color or _file_Diffuse:
 
